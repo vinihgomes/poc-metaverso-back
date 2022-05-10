@@ -4,9 +4,11 @@ import studentsystem.model.Student;
 import studentsystem.service.StudentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/student")
@@ -16,13 +18,16 @@ public class StudentController {
     private StudentService studentService;
 
     @PostMapping("/add")
-    public String add(@RequestBody Student student){
-        studentService.saveStudent(student);
-        return "New student is added";
+    public ResponseEntity<Student> add(@RequestBody Student student){
+    	var nStudent = studentService.saveStudent(student);
+        return ResponseEntity.ok(nStudent);
     }
 
     @GetMapping("/getAll")
-    public List<Student> list(){
-        return studentService.getAllStudents();
+    public ResponseEntity<List<Student>> list(){
+        return studentService.getAllStudents()
+        					 .filter(Objects::nonNull)
+        					 .map(ResponseEntity::ok)
+        					 .orElseGet(() -> ResponseEntity.noContent().build());
     }
 }
